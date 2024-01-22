@@ -1,0 +1,44 @@
+# Run publish-cycle on main commits.
+#
+# Publish cycle comprises:
+# - publish site to https://nigeleke.github.io
+#
+name: Publish Cycle
+
+on:
+  workflow_run:
+    workflows: ["Acceptance Cycle"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: |
+          git config --global user.email "nigeleke@users.noreply.github.com"
+          git config --global user.name "Nigel Eke"
+          mkdir docs0
+          cp README.md docs0/
+          cp -R docs docs0/
+          git push --tags
+
+      - name: Publish
+        run: |
+          git config --global user.email "nigeleke@users.noreply.github.com"
+          git config --global user.name "Nigel Eke"
+          export VERSION=$(git describe --abbrev=0 --tags)
+          git checkout gh-pages
+          rm -rf docs
+          mv docs0 docs
+          git add .
+          git commit -m "Release $VERSION"
+          git push
