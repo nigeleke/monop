@@ -63,7 +63,7 @@ BOARD:  XWD     T.NULL,[        XWD     0,[ASCIZ/GO/]]
                                 XWD     320,450]
         XWD     T.FINE,[        XWD     -200,[ASCIZ/INCOME TAX PAY $200/]]
         XWD     T.OABL+T.STAT,[ XWD     200,[ASCIZ/KING'S CROSS STATION/]]
-        XWD     T.OABL+T.BABL,[ XWD     60,[ASCIZ/THE ANGEL, ISLINGTON/]
+        XWD     T.OABL+T.BABL,[ XWD     100,[ASCIZ/THE ANGEL, ISLINGTON/]
                                 XWD     8*^O1000+9,50
                                 XWD     6,30
                                 XWD     90,270
@@ -108,7 +108,7 @@ BOARD:  XWD     T.NULL,[        XWD     0,[ASCIZ/GO/]]
                                 XWD     16*^O1000+19,100
                                 XWD     14,70
                                 XWD     200,550
-                                XWD     700,900]
+                                XWD     750,900]
         XWD     T.OABL+T.BABL,[ XWD     200,[ASCIZ/VINE STREET/]
                                 XWD     16*^O1000+18,100
                                 XWD     16,80
@@ -174,7 +174,7 @@ BOARD:  XWD     T.NULL,[        XWD     0,[ASCIZ/GO/]]
                                 XWD     500,1100
                                 XWD     1300,1500]
         XWD     T.FINE,[        XWD     -100,[ASCIZ/SUPER TAX PAY $100/]]
-        XWD     T.OABL+T.BABL,[ XWD     350,[ASCIZ/PARK LANE/]
+        XWD     T.OABL+T.BABL,[ XWD     400,[ASCIZ/MAYFAIR/]
                                 XWD     37,200
                                 XWD     50,200
                                 XWD     600,1400
@@ -191,6 +191,7 @@ CHNPTR: 0                       ;POINTS TO LAST CHANCE CARD USED
 CMPTR:  0                       ;AS ABOVE FOR COMM. CHEST CARDS
 CRDBLK:
         XLIST                   ;SETUP CHANCE/COMMUNITY CHEST POINTER BLOCKS
+;TODO: CODE LOST
         LIST                    ;REPEAT 20,<CMBLK,CHNBLK: XWD 0,COMMUN/CHANCE+Z>
 FLGCEI:                         ;FOR Z<-0(1)20
         PAGE
@@ -226,18 +227,18 @@ NAME:   0                       ;STORES LOCATION OF NAME STRING
         SUBTTL  START OF MONOPOLY PROGRAM
 MONOP:  RESET
         MOVEI   P,GENSTK-1              ;STACK POINTER FOR CHANCE/COMM. RECURSIVE CALLS
-        MOVEI   N,.JOBFF
+        MOVE    N,.JOBFF
         MOVEM   N,NAME                  ;ADDRESS OF START OF NAME
         OUTSTR  [ASCIZ\
 MONOPOLY.
 =========
 
 \]
-QUESTP: OUTSTR  [ASCIZ\WOULD YOU LIKE TO PLAY?\]
+QUESTP: OUTSTR  [ASCIZ\WOULD YOU LIKE TO PLAY ?\]
         INCHWL  C
         JSR     CMPLIN
         CAIN    C,"N"
-EXIT                                    ;EXIT IF USER DOESN'T WANT TO PLAY
+        EXIT                            ;EXIT IF USER DOESN'T WANT TO PLAY
         CAIN    C,"C"
         JRST    CONFLE                  ;CONTINUATION FROM FILE
         CAIE    C,"Y"
@@ -406,7 +407,7 @@ GETCM:  0                               ;GET COMM. CHEST CARD
 YOUI:   OUTSTR  IYOU(PLAYER)
         OUTSTR  [ASCIZ\'VE PICKED:-\]
         HLRE    AC1,@CRDBLK(AC)         ;MONEY TO BE ADDED/SUBTRACTED
-        HRRZ    AC2,@CRDBLK(AC)         ;ADDRESS OF SUBROUTINE OR OUTPUT STRING
+        HRRZ    AC2,@CRDBLK(AC)         ;ADDRESS OF SUBROUTINE OR OF OUTPUT STRING
         OUTSTR  CRLF
         JUMPE   AC1,@AC2                ;JUMP TO SUBROUTINES
         OUTSTR  0(AC2)
@@ -439,7 +440,7 @@ NXTCNT: MOVE    AC,BOARD(COUNT)         ;GET INFO. ON SQ. NO- COUNT
         ;ADD TO TOTAL OF HOUSES/HOTELS
         LSH     AC,-41                  ;GET NUMBER
         CAIN    AC,5
-        ADJA    NHOTEL,AOCNT
+        AOJA    NHOTEL,AOCNT
         ADDM    AC,NHOUSE
 AOCNT:  AOBJN   COUNT,NXTCNT            ;NO, NEXT SQUARE
         IMULM   ACZ,NHOUSE
@@ -465,7 +466,7 @@ OUTJAL: MOVE    AC,POSN                 ;CHECK TO SEE IF GET OUT
         JRST    GETCHN+1                ;YES, PICK AGAIN
 CANPIK: OUTSTR  [ASCIZ\GET OUT OF JAIL FREE.
 \]
-        JUMPN   PLAYER,[OUTSTR  [ASCIZ\KEEP OR SELL?\]
+        JUMPN   PLAYER,[OUTSTR  [ASCIZ\KEEP OR SELL ?\]
                 INCHWL  C
                 JSR     CMPLIN
                 CAIN    C,"K"
@@ -479,7 +480,7 @@ CANPIK: OUTSTR  [ASCIZ\GET OUT OF JAIL FREE.
         MOVE    AC,POSN(PLAYER)
         SKIPE   CHNCM
         TLOA    AC,P.CHNJ               ;GET NEW FLAGS
-        TLOA    AC,P.CMJ
+        TLO     AC,P.CMJ
         MOVEM   AC,POSN(PLAYER)         ;WRITE IN PLAYERS NEW FLAGS
         JRST    PICKEX+1                ;AND EXIT
         PAGE
@@ -554,6 +555,8 @@ FINE10: MOVE    AC,CASH(PLAYER)         ;FINE PAID FOR USER
 
 
 
+
+
 ;PLAYERS BIRTHDAY
 BIRTH:  OUTSTR  [ASCIZ\IT IS YOUR BIRTHDAY, COLLECT $10 FROM EACH PLAYER\]
         MOVEI   AC,12
@@ -562,6 +565,8 @@ BIRTH:  OUTSTR  [ASCIZ\IT IS YOUR BIRTHDAY, COLLECT $10 FROM EACH PLAYER\]
         XOR     AC1,PLAYER
         SUBM    AC,CASH(AC1)            ;SUBTRACT $10 FROM OTHER PLAYER
         MOVNS   CASH(AC1)
+
+
 
 
 
@@ -595,9 +600,9 @@ NXTSWP: MOVE    AC2,RNDBLK+1(MOD)
         SKIPE   CHNCMS                  ;SHUFFLE CARDS
         JRST    [MOVE   AC1,CHNBLK(MOD)
                 EXCH    AC1,CHNBLK+1(MOD)
-                MOVEM   AC1,CHKBLK(MOD)
+                MOVEM   AC1,CHNBLK(MOD)
                 JRST    FINSWP]
-        MOVE    AC1,CmBLK(MOD)
+        MOVE    AC1,CMBLK(MOD)
         EXCH    AC1,CMBLK+1(MOD)
         MOVEM   AC1,CMBLK(MOD)
 FINSWP: AOS     MOD
@@ -680,7 +685,7 @@ RNTCAL: 0
         SKIPN   SETFLG                  ;YES, IS PART OF A SET?
         JRST    @RNTCAL                 ;NO, THEREFORE SINGLE RENT, EXIT
         IOR     ACZ,BOARD(SET3)         ;YES, IS IT PART OF SET
-        SKIPE   SET2                    ;NOW TEST TO SEE IF ANY PART OF SET MORTGAGED
+        SKIPE   SET2                    ;NOW TEST TO SEE IF ANY OF SET MORTGAGED
         IOR     ACZ,BOARD(SET2)         ;IF ANY ARE THEN ONLY SINGLE RENT
         TLNE    ACZ,T.MORT              ;ANY OF SET MORTGAGED?
         JRST    @RNTCAL                 ;YES, THEREFORE SINGLE RENT, EXIT
@@ -694,7 +699,7 @@ COMSTT: CAIN    AC,                     ;ARE THEY THE SAME AS THE ONE LANDED ON?
         AOS     SHCAL                   ;YES, INCREMENT SHIFT VALUE
         ADDI    AC1,^D10                ;NEXT STATION ROUND
         CAIE    AC1,^D45                ;OFF BOARD?
-        JRST    COMSTT+1                ;NO, KEEP LOOKING
+        JRST    COMSTT-1                ;NO, KEEP LOOKING
         MOVEI   AC1,^D25                ;YES, PUT MINIMUM RENT IN AC1
         SOS     SHCAL                   ;DECREMENT SHIFT VALUE
 SHCAL:  LSW     AC1,                    ;RENT=$25*2^(NO. STATIONS-1)
@@ -717,13 +722,13 @@ MSTOUT: 0
         OUTSTR  CRLF
         JSR     CRDUSE
         OUTSTR  [ASCIZ\YOU'VE HAD TO PAY $50.
-\]                                      ;IF RETURN THEN NO GET OUT OF JAIL FREE CARD
+\]                                      ;IF RETURN THEN NO GET OUT FREE CARD
         JRST    PAY                     ;THEREFORE HAS TO PAY TO GET OUT
 GEOTER: 0
         JSR     CRDUSE
         CAMLE   AC1,CASH+1              ;IF RETURN THEN GET OUT FREE CARD
         JRST    [OUTSTR [ASCIZ\YOU CANT AFFORD TO GET OUT\]
-                OUTSTR  @NAME           ;CANT PAY TO GET OUT
+                OUTSTR  @NAME           ;CAN'T PAY TO GET OUT
                 OUTSTR  CRLF
                 JRST    @GEOTER]
 PAY:    SUBM    AC1,CASH+1              ;CAN PAY
@@ -841,10 +846,10 @@ MRTQST: OUTSTR  0(AC1)
         CAIE    C,"Y"                   ;YES
         JRST    [OUTSTR ASCIZ[\PLEASE ANSWER 'YES', 'NO' OR 'FINISH'. \]
                 JRST    MRTQST]
-        TLO     AC,T.MORT               ;SET MORTGAGE FLAG
+        TLO     AC,T.MORT               ;SET MORT FLAG
         NOVEM   AC,BOARD(COUNT)         ;REPLACE
         HLRZ    AC2,0(AC)               ;BUY PRICE
-        LSW     AC2,-1                  ;DIVIDE BY 2
+        LSH     AC2,-1                  ;DIVIDE BY 2
         ADDB    AC2,CASH+1              ;ADD TO USERS CASH
         JUMPL   AC2,AOMCNT
         JUMPGE  AC3,AOMCNT
@@ -872,7 +877,7 @@ UNMQST: OUTSTR  0(AC1)
         OUTSTR  [ASCIZ\ ?\]
         INCHWL  C
         JSR     CMPLIN
-        CAIN    C,15                    ;<CR> > == TAKEN AS 'NO'
+        CAIN    C,15                    ;<CR> ? -- TAKEN AS 'NO'
         JRST    AOBCNT
         CAIN    C,"N"                   ;NO ?
         JRST    AOBCNT
@@ -917,7 +922,7 @@ PRPBUY: MOVE    MOD,POSN+1
         TLNN    AC1,T.OABL              ;CAN PROPERTY BE BOUGHT?
         JRST    [OUTSTR [ASCIZ/THIS PROPERTY CANNOT BE BOUGHT
 /]                                      ;NO
-                JRST    #BUYER]
+                JRST    @BUYER]
         TLNN    AC1,T.OWND              ;ALREADY BEEN BOUGHT?
         JRST    NOTOWN                  ;NO
         TLNE    AC1,T.OWNER             ;YES, PRINT OWNER MESSAGE
@@ -933,7 +938,7 @@ NOTOWN: HLRZ    AC2,0(AC1)              ;GET COST OF PROPERTY
         JRST    [OUTSTR [ASCIZ/YOU HAVEN'T GOT ENOUGH MONEY TO BUY THIS PROPERTY
 /]                                      ;YES
                 JRST    @BUYER]
-        OUTSTR  [ASCIZ/YOU NOW OWN /]   ;PRINT CONFIRMATION
+        OUTSTR  [ASCIZ/YOU NOW OWN /]   ;PRINT CONFORMATION
         MOVE    AC,0(AC1)
         OUTSTR  0(AC)                   ;PRINT NAME
         OUTSTR  CRLF
@@ -950,7 +955,7 @@ NOTOWN: HLRZ    AC2,0(AC1)              ;GET COST OF PROPERTY
         AND     AC,BOARD(SET2)
         TLNN    AC,T.OWNR               ;DOES THE USER OWN ALL MEMBERS
         JRST    @BUYER                  ;NO, BUY FINISHED
-        HRLZI   AC1,T.SET               ;YES, SET THE FLAG
+        HRLZI   AC1,T.SET               ;YES, SET SET FLAG
         IORM    AC1,BOARD(MOD)          ;IN ALL SET MEMBERS
         IORM    AC1,BOARD(SET3)
         SKIPE   SET2
@@ -992,7 +997,7 @@ BLOOP:  MOVE    AC1,BOARD(MOD)          ;GET FLAGS
         CAMLE   N,AC                    ;IS NUMBER OF HOUSES BOUGHT LIMITED BY MONEY?
         MOVE    N,AC                    ;NO, THEREFORE NO. HOUSES BOUGHT LIMITED BY SPACE
         MOVEM   M,MAXHSE#               ;SAVE THIS MAXIMUM
-        OUTSTR  [ASCIZ/YOU CAN BUY /]   ;PRINT THIS MAXIMUM
+        OUTSTR  [ASCIZ/YOU CAN BUY /]   ;PRINT THIS MAXIMUM AND
         JSR     SETOUT                  ;THE STATE OF THE SET
         OUTSTR  [ASCIZ/AT A COST OF $/] ;PRINT HOUSE PRICE
         MOVE    AC1,BOARD(MOD)
@@ -1043,12 +1048,12 @@ SLLOOP: MOVE    AC1,BOARD(MOD)          ;GET FLAGS + DATA ADDRESS
         OUTSTR  [ASCIZ/AT THE SELLING PRICE OF $/]
         MOVE    AC1,BOARD(MOD)
         HRRZ    AC1,1(AC1)
-        LSW     AC1,-1                  ;SALE PRICE = 0.5*COST PRICE
+        LSH     AC1,-1                  ;SALE PRICE = 0.5*COST PRICE
         MOVE    N,AC1
         JSR     INTOUT
         OUTSTR  [ASCIZ/ EACH HOUSE
 /]
-INSLNH: OUTSTR  [ASCIZ/HOW MANY HOUSES DO YOU WISH TO SELL ?/]
+INSLNH: OUTSTR  [ASCIZ/HOW MANY DO YOU WISH TO SELL ?/]
         JSR     INTIN                   ;FIND HOW MANY HE WANTS TO SELL
         JUMPLE  N,SLLPND-1              ;IF SELL NO HOUSES TEST NEXT
         CAMLE   N,MAXHSE                ;CAN'T SELL MORE HOUSES THEN HE'S GOT
@@ -1076,8 +1081,8 @@ SLLPND: AOS     MOD
 SPLTST: 0
         SETZ    SET3
         HLRZ    SET2,A(AC1)             ;GET HALF-WORD CONTAINING MEMBER ADDRESSES
-        LHSC    SET2,-11                ;SPLIT IT INTO TWO
-        LHS     SET3,-33
+        LSHC    SET2,-11                ;SPLIT IT INTO TWO
+        LSH     SET3,-33
         JRST    @SPLTST
 
 
@@ -1089,7 +1094,7 @@ HSUMSB: 0
         SETZ    N,
         HRLZI   MOD1,-3
 HSUMLP: MOVE    AC,MOD(MOD1)            ;GET FIRST MEMBERS ADDRESS
-        HLRZ    AC,BOARD(AC)            ;GO NO. OF HOUSES + FLAGS
+        HLRZ    AC,BOARD(AC)            ;GET NO. OF HOUSES + FLAGS
         ANDI    AC,700000               ;REMOVE FLAGS
         ADD     N,AC                    ;ADD NO. IF HOUSES*2^17 TO TOTAL
         AOBJN   MOD1,HSUMLP
@@ -1106,8 +1111,8 @@ SETOUT: 0
         JSR INTOUT                      ;OUTPUT NUMBER OF HOUSES
         OUTSTR  [ASCIZ/ HOUSE/]
         CAIE    AC2,1                   ;IS NUMBER OF HOUSES GREAETER THAN 1?
-        OUTSTR  [ASCIZ/S/]              ;YES, OUTPUT PLURAL FROM
-        OUTSTR  [ASCIZ/ON THE FOLLOWING SET:
+        OUTSTR  [ASCIZ/S/]              ;YES, OUTPUT PLURAL FORM
+        OUTSTR  [ASCIZ/ ON THE FOLLOWING SET:
 /]
         MOVE    AC2,BOARD(MOD)          ;GET FLAGS FOR PROPERTY NAME PRINTER
         OUTSTR  [ASCIZ/1)  /]           ;REF. NUMBER
@@ -1148,9 +1153,9 @@ ODHPLC: 0
         JSR     AD1RTN
         SOJE    N1,@ODHPLC
         MOVE    AC,SET2                 ;THEN, IF IT'S STILL GOT AN ODD HOUSE.
-        JSR     AD1RTN                  ;IT PUTS IT IN THE MIDDLE MEMBER
+        JSR     AD1RTN                  ;IT PUTS IT ON THE MIDDLE MEMBER
         JRST    @ODHPLC
-USRPLC: SOJN    N1,TOSPAR               ;TWO HOUSES LEFT TO PLACE?
+USRPLC: SOJN    N1,TOSPAR               ;TWO HOUSES TO PLACE?
         OUTSTR  [ASCIZ/YOU HAVE AN ODD HOUSE. WHICH PROPERTY DO YOU WANT IT PUT ON:
 1/]                                     ;NO
         JUMPN   SET2,.+3
@@ -1164,6 +1169,7 @@ INHPRO: INCHWL  C
         JRST    ADDHSE
         MOVE    AC,SET3
         SKIPE   SET2
+        MOCE    AC,SET2
         CAIN    C,"2"
         JRST    ADDHSE
         JUMPN   SET2,TEST3
@@ -1174,9 +1180,9 @@ TEST3:  MOVE    AC,SET3
         JRST    ADDHSE
         OUTSTR  [ASCIZ/ANSWER 1,2 OR 3 ONLY ?/]
         JRST    INHPRO
-TOSPAR: OUTSTR  [ASCIZ/YOU HAVE TWO SPARE HOUSES.WHICH PROPERTIES DO YOU WANT THEM PUT ON:
+TOSPAR: OUTSTR  [ASCIZ/YOU HAVE TWO SPARE HOUSES,WHICH PROPERTIES DO YOU WANT THEM PUT ON:
 /]
-        OUTSTR  [ASCIZ/TYPE 'A' FIR 1&2, 'B' FOR 1&3 OR 'C' FOR 2&3 ?/]
+        OUTSTR  [ASCIZ/TYPE 'A' FOR 1&2, 'B' FOR 1&3 OR 'C' FOR 2&3 ?/]
 IN2PCD: INCHWL  C                       ;PAIRS OF PROPERTIES HAVE CODES A, B AND C
         JSR     CMPLIN
         MOVE    AC,MOD
@@ -1198,7 +1204,7 @@ ADDHSE: JSR     AD1RTN
 AD1RTN: 0                               ;GENERAL ROUTINE TO ADD ONE HOUSE TO A PROPERTY
         HLRZ    AC2,BOARD(AC)
         ADDI    AC2,100000
-        HLRM    AC2,BOARD(AC)
+        HRLM    AC2,BOARD(AC)
         JRST    @AD1RTN
         PAGE
         SUBTTL  USERS GO CONTROLING ROUTINE
@@ -1233,7 +1239,7 @@ ININST: OUTSTR  [ASCIZ/## /]           ;ASK FOR AN INSTRUCTION
         JRST    ININST
 NOTCR:  SUBI    C,40
         JUMPE   C,ININST+1              ;IGNORE SPACES
-        LSW     C,36
+        LSH     C,36
         MOVE    N,C                     ;STORE SIXBIT CHARACTER
         INCHWL  C
         SUBI    C,40
@@ -1261,7 +1267,7 @@ CSHPTR: 0
         JUMPG   N,POSCSH
         OUTSTR  AMARE(PLAYER)
         JUMPL   N,NEGCSH
-        OUTSTR  [ASCIZ/SKINT
+        OUTSTR  [ASCIZ/ SKINT
 /]                                      ;OUTPUT FOR CASH=0
         JRST    @CSHPTR
 POSCSH: OUTSTR  [ASCIZ/'VE GOT $/]      ;OUTPUT FOR CASH>0
@@ -1294,7 +1300,7 @@ NOUTER: 0                               ;OUTPUTS PROPERTY NAME AND
 NOUTLP: ILDB    C,AC1                   ;GET A CHARACTER
         JUMPE   C,@NOUTER               ;IF NULL, OUTPUT FINISHED
         OUTCHR  C                       ;OUTPUT CHARACTER AND
-        SOJA    AC,NOURLP               ;SUBTRACT ONE FROM AC
+        SOJA    AC,NOUTLP               ;SUBTRACT 1 FROM AC
 SPOUT:  0                               ;ROUTINE TO OUTPUT 0(AC) SPACES
         JUMPE   AC,@SPOUT
         MOVEI   C,40
@@ -1358,7 +1364,7 @@ PROPERTY                      OWNER     STATE
 
 /]
 STLOOP: MOVE    AC2,BOARD(MOD)          ;GET FLAGS
-        TLNN    AC2,T.OABL              ;IF IT'S NOT OWNABLE DON'T BOTHER
+        TLNN    AC2,T.OABL              ;IF ITS NOT OWNABLE DON'T BOTHER
         JRST    STLPND
         JSR     NOUTER                  ;PRINT PROPERTY NAME
         JSR     SPOUT
@@ -1381,13 +1387,13 @@ STLPND: AOBJN   MOD,STLOOP
 PSTLP:  OUTSTR  CRLF
         JSR     CSHPTR                  ;PRINT CASH
         MOVE    AC,POSN(PLAYER)
-        JSR     NOWON                   ;PRINT WHERE THE PLAYER IS
+        JSR     NOWON                   ;PRINT WHERE PLAYER IS
 STATRO: TLNN    AC,P.CHNJ               ;HAS PLAYER GOT CHANCE JAIL CARD?
         JRST    CMJPRT
         OUTSTR  IYOU(PLAYER)            ;YES, SAY SO
         OUTSTR  [ASCIZ/'VE GOT THE CHANCE 'GET OUT OF JAIL FREE' CARD
 /]
-CMHPRT: TLNN    AC,P.CMJ                ;HAS PLAYER GOT COMM. CH. JAIL CARD
+CMJPRT: TLNN    AC,P.CMJ                ;HAS PLAYER GOT COMM. CH. JAIL CARD
         JRST    PRAS
         OUTSTR  IYOU(PLAYER)            ;YES, SAY SO
         OUTSTR  [ASCIZ/'VE GOT THE COMMUNITY CHEST 'GET OF JAIL FREE' CARD
@@ -1425,7 +1431,7 @@ CBYLP:  MOVE    AC1,BOARD(MOD)          ;GET FLAGS
         EXCH    MOD,SET2
         MOVE    AC1,BOARD(MOD)
         TLNE    AC1,T.OWNR              ;COMPUTER SET?
-        JRST    CMPBYP                  ;NO, SKIP OVER SET AND TEST NEXT
+        JRST    CBYLND                  ;NO, SKIP OVER SET AND TEST NEXT
         TLZE    AC,AC1
         IOR     AC,BOARD(SET3)
         SKIPE   SET2
@@ -1449,10 +1455,10 @@ UMLOOP: MOVE    MOD1,MOD(COUNT)
         TLZ     AC1,T.MORT              ;SUCCESFUL UNMORTGAGE
         MOVEM   AC1,BOARD(MOD1)
         OUTSTR  [ASCIZ/I HAVE JUST UNMORTGAGED /]
-        MOVE    AC1,O(AC1)              ;PRINT WARNING
+        MOVE    AC1,0(AC1)              ;PRINT WARNING
         OUTSTR  0(AC1)
         OUTSTR  CRLF
-UMLPD:  AOBJN   COUNT,UMLOOP            ;END OF UNMORTGAGING LOOP
+UMLPND: AOBJN   COUNT,UMLOOP            ;END OF UNMORTGAGING LOOP
 STNMRT: JSR     HSUMSB                  ;GET NUMBER OF HOUSES ALREADY ON SET
         MOVEI   AC,17
         SKIPN   SET2
@@ -1483,7 +1489,7 @@ CMPTHW: JSR     THROW
         TLNN    AC1,P.JAIL
         JRST    CMPBYP
         TLZE    AC1,P.CHNJ              ;CHANCE GET OUT CARD ?
-        JRST    [OUTSTR [ASCIZ\i'VE USED MY 'GET OUT OF JAIL FREE' CARD.
+        JRST    [OUTSTR [ASCIZ\I'VE USED MY 'GET OUT OF JAIL FREE' CARD.
 \]
                 TLZ     AC1,P.JAIL
                 MOVEM   AC1,POSN
@@ -1534,8 +1540,8 @@ PRASLP: MOVE    FLGS,BOARD(MOD)         ;ROUTINE TO SEE HOW MUCH CASH CAN BE RAI
         TLNE    FLGS,T.SET
         JRST    PALPND
         HLRZ    FLGS,0(FLGS)            ;HERE IF PROPERTY IS COMPUTERS BUT IS NOT A SET
-        LSW     FLGS,-1                 ;GET MORTGAGE VALUE
-        ADD     N,FLGS                  ;ADD IT TO TOTAL
+        LSH     FLGS,-1                 ;GET MORTGAGE VALUE
+        ADD     N,FLGS                  ;ADD IT ON TO TOTAL
 PALPND: AOBJN   MOD,PRASLP
         JUMPL   N,DBLTST                ;CAN MORTGAGE ENOUGH TO COVER COST?
 NOMORT: MOVE    MOD,POSN                ;YES, SO BUY IT
@@ -1655,7 +1661,7 @@ ASSMLP: MOVE    AC,BOARD(MOD)
         JRST    ASLPND
         TLNE    AC,T.MORT
         JRST    ASLPND
-        HRLZ    AC1,AC
+        HLRZ    AC1,AC
         ANDI    AC1,T.OWNR
         IDIVI   AC1,T.OWNR
         CAME    AC1,PLAYER
@@ -1737,7 +1743,7 @@ TRYLP:  MOVE    AC,BOARD(MOD)
         MOVE    AC1,CLRTAB(MOD1)
         TLNN    AC,0(AC1)               ;IS IT IN THE CURRENT CATEGORY?
         JRST    TRYLND                  ;NO, IGNORE IT
-        HLRZ    AC1,AC
+        HLRZ    AC2,AC
         ANDI    AC2,T.OWNR
         IDIVI   AC2,T.OWNR
         CAME    AC2,PLAYER              ;OWNED BY PLAYER?
@@ -1775,7 +1781,7 @@ TRYTWO: MOVE    AC2,BOARD(MOD)
         JSR     HSUMSB                  ;GET NUMBER OF HOUSES ON SET
         JUMPE   N,MORT                  ;IF NO HOUSES, MORTGAGE SET
         TRNN    AC3,1                   ;FIRST PASS?
-        JRST    TR2LND-1                ;YES, DON'T SELL HOUSES ON FIRST PASS
+        JRST    TR2LND-1                ;YES, DON'T SELL HOUSES ON 1ST PASS
         HRRZ    AC2,1(AC2)
         LSH     AC2,-1
         MOVM    AC,CASH(PLAYER)
@@ -1789,6 +1795,7 @@ TRYTWO: MOVE    AC2,BOARD(MOD)
         ADDM    AC2,CASH(PLAYER)        ;ADD SALE VALUE TO PLAYERS CASH
         MOVEM   N,NEWNOH#
         MOVE    N,AC
+        OUTSTR  IYOU(PLAYER)
         OUTSTR  [ASCIZ/'VE SOLD /]      ;PRINT WARNING
         JSR     SETOUT
         MOVE    N,NEWNOH
@@ -1848,7 +1855,7 @@ THROWN: SETZM   RNTFLG
         OUTCHR  X                       ;DOUBLE WHAT?
         JRST    DICEND
 OUTTOT: ADDB    N,X                     ;IF NOT DOUBLE PRINT SUM OF DICE
-        IDIVI   12
+        IDIVI   X,12
         JUMPE   X,.+3
         ADDI    X,60
         OUTCHR  X
@@ -1881,7 +1888,7 @@ TSTNOJ: HLRZ    N,POSN(PLAYER)
         OUTSTR  [ASCIZ\ AND HAVE HAD \]
         ADDI    N,60                    ;PRINT NUMBER OF GOES
         OUTCHR  N
-        OUTSTR  [ASCIZ\GO\]
+        OUTSTR  [ASCIZ\ GO\]
         CAIE    N,61
         OUTSTR  [ASCIZ\ES\]
         OUTSTR  [ASCIZ\ IN JAIL.
@@ -1890,7 +1897,7 @@ TSTNOJ: HLRZ    N,POSN(PLAYER)
 DBLTHW: MOVE    AC1,NOTHROW
         CAIE    AC1,3                   ;THREE DOUBLES ?
         JRST    [TLZ    AC,P.JAIL+P.J1+P.J2     ;SET JAILS FLGS TO 0
-                JRST    NORMGO]         ;DOUBLES GET U OUT+NORMAL GO
+                JRST    NORMGO]         ;DOUBLES GET U OUT-NORMAL GO
         ;MUST GO TO JAIL
         HLLZS   AC
         IOR     AC,[XWD P.JAIL,12]      ;PUT PLAYER IN JAIL
@@ -1912,7 +1919,7 @@ CHKSQ:  0
         TLNE    AC,T.NULL
         JRST    @CHKSQ                  ;NULL SQUARE EXIT
         TLNE    AC,T.GJAL               ;GOTO JAIL ?
-        JRST    [HLLZ   AC.POSN(PLAYER)
+        JRST    [HLLZ   AC,POSN(PLAYER)
                 IOR     AC,[XWD P.JAIL,12]
                 MOVEM   AC,POSN(PLAYER)
                 JRST    @CHKSQ]
@@ -1966,6 +1973,7 @@ CMPPRO: OUTSTR  [ASCIZ\THATS MY PROPERTY
         JSR     RNTCAL
         ADDM    AC1,CASH                ;USER TO PAY UP
         SUBM    AC1,CASH+1
+        MOVENS  CASH+1
         MOVE    N,AC1
         OUTSTR  [ASCIZ\RENT COLLECTED:- $\]
         JSR     INTOUT
@@ -2035,7 +2043,7 @@ CHECK:  CAILE   C,"Z"
         JRST    @SIXIN
 LOADAC: JUMPE   COUNT,.+3
         SUBI    C,40
-        IOPB    C,AC2
+        IDPB    C,AC2
         INCHWL  C
         JUMPE   COUNT,CHECK
         SOJA    COUNT,CHECK
@@ -2057,10 +2065,13 @@ OUTFIL: 0                               ;OUTPUT FILE-NAME
         JSR     SIXOUT
         MOVE    AC1,PPN
         GETPPN  AC,
+        JRST    .+2
+        SETZ    AC,
+        CAMN    AC1,AC
         JRST    @OUTFIL
         OUTSTR  [ASCIZ\[\]
         HRLZI   AC2,-6
-        SETZ    AC.
+        SETZ    AC,
         LSHC    AC,3
         ADDI    AC,60
         OUTCHR  AC
@@ -2094,7 +2105,7 @@ WRTWRD: 0                               ;WRITE A WORD ONTO FILE
         EXIT
 GETWRD: 0                               ;GET WORD FROM FILE
         SOSG    INBUF+2
-        JRST    .=3
+        JRST    .+3
         ILDB    N,INBUF+1
         JRST    @GETWRD
         IN      1,
@@ -2102,6 +2113,7 @@ GETWRD: 0                               ;GET WORD FROM FILE
         OUTSTR  SYSERR
         EXIT
 SYSERR: ASCIZ\SYSTEM ERROR
+
 \
         PAGE
         SUBTTL  UTILITY SUBROUTINES
@@ -2149,8 +2161,8 @@ RANDOM: 0                               ;NEW RANDOM NUMBER=(2^13-3)*OLD RANDOM N
         FSC     N,200                   ;FLOAT THE RETURNED RANDOM NUMBER
         JRST    @RANDOM                 ;SO THAT 0<N<1
         PAGE
-        ;INTEGER OUTPUT ROUTINE. CALL:- 'JSR INTOUT'
-STKPNT: XWD-14,OUTSTK-1                 ;STACK POINTER DETAILS
+        ;INTEGER OUTPUT ROUTINE. CALL IS 'JSR INTOUT'
+STKPNT: XWD     -14,OUTSTK-1            ;STACK POINTER DETAILS
 OUTSTK: BLOCK 14                        ;STACK
 INTOUT: 0                               ;ENTRY POINT
         JUMPL   N,@INTOUT               ;THIS VERSION DOES NOT OUTPUT NEGATIVE NUMBERS
@@ -2185,7 +2197,7 @@ NUMIN:  INCHWL  C                       ;INPUT CHARACTER
         JRST    OUT                     ;YES, NUMBER FINISHED
         IMULI   N,^D10                  ;MULTIPLY OLD NUMBER BY 10
         ADDI    N,-60(C)                ;ADD ON THE NEW NUMBER
-        JRST    NUMIN                   ;SET NEXT CHARACTER
+        JRST    NUMIN                   ;GET NEXT CHARACTER
 OUT:    JSR     CMPLIN                  ;INPUT REST OF LINE
         JFCL    10,.+2                  ;OVERFLOW?
         JRST    @INTIN                  ;NO, EXIT
