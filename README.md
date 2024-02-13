@@ -89,11 +89,19 @@ OPR>exit
 
 ```
 
-At this point `<CTRL-C>` the content of `monop.mac`, go back to the `pip` terminal, do `CTRL-SHIFT-V` and wait.  At the end do a `CTRL-Z` to end the input.
+At this point copy the whole content of `monop.mac`, go back to the `pip` terminal, do `CTRL-SHIFT-V` and wait.  At the end do a `CTRL-Z` to end the input.
 
 ```
 *<CTRL-C>
-.compile monop.mac
+.compile monop.mac /dlist
+.load monop
+LINK:   Loading
+
+EXIT
+
+.save
+MONOPO saved
+.run
 ```
 
 ## Acknowledgements
