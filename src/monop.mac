@@ -197,7 +197,7 @@ CMBLK:  REPEAT 20,<
                 XWD     0, COMMUN+Z
                 Z = Z+1>
         Z = 0
-CHKBLK: REPEAT 20,<
+CHNBLK: REPEAT 20,<
                 XWD     0, CHANCE+Z
                 Z = Z+1>
 ;TODO: CODE LOST--
@@ -958,7 +958,7 @@ NOTOWN: HLRZ    AC2,0(AC1)              ;GET COST OF PROPERTY
         TLNN    AC1,T.BABL+T.EWCO       ;CAN THIS PROPERTY BE PART OF A SET?
         JRST    @BUYER                  ;NO, SO BUY FINISHED
         JSR     SPLTST                  ;GET OTHER SET MEMBERS BOARD ADDRESSES
-        MOV     AC,AC1
+        MOVE    AC,AC1
         AND     AC,BOARD(SET3)
         SKIPE   SET2
         AND     AC,BOARD(SET2)
@@ -982,7 +982,7 @@ BLOOP:  MOVE    AC1,BOARD(MOD)          ;GET FLAGS
         SKIPE   SET2
         IOR     AC1,BOARD(SET2)
         TLNE    AC1,T.MORT              ;ANY OF SET MORTGAGED?
-        JRST    BPLEND-1                ;YES, TEST NEXT
+        JRST    BLPEND-1                ;YES, TEST NEXT
         JSR     HSUMSB                  ;GET NUMBER OF HOUSES ALREADY ON SET
         MOVEM   N,OLDNOH#               ;SAVE FOR LATER
         MOVEI   AC,17
@@ -1027,7 +1027,7 @@ INNHSS: OUTSTR  [ASCIZ/HOW MANY HOUSES DO YOU WISH TO BUY ?/]
         SUBM    AC1,CASH+1              ;SUBTRACT COST FROM USERS CASH
         ADD     N,OLDNOH                ;GET TOTAL NUMBER OF HOUSES NOW ON SET
         JSR     ODHPLC                  ;DISTRIBUTE THEM ON THE SET
-        MOV     MOD,SET3
+        MOVE    MOD,SET3
 BLPEND: AOS     MOD
         CAIE    MOD,50                  ;FINISHED LOOKING THRU>
         JRST    BLOOP                   ;NO, TEST NEXT
@@ -1954,7 +1954,7 @@ CHKSQ:  0
         JRST    @CHKSQ                  ;NO EXIT
         MOVEI   AC,16                   ;APPROX. TIME TO OUTPUT MESSAGE + 2 SECONDS
         SLEEP   AC,                     ;USERS GOT 2 SEC TO TYPE "RENT"
-        INCHR$  C                       ;CHARACTER FOR INPUT ?
+        INCHRS  C                       ;CHARACTER FOR INPUT ?
         JRST    @CHKSQ                  ;NO
         CAIE    C,"R"
         JRST    [JSR    CMPLIN          ;NOT "R"
