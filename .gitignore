@@ -1,0 +1,4 @@
+simh/disks/*
+simh/logs/*
+simh/tapes/*
+

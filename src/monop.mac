@@ -191,7 +191,16 @@ CHNPTR: 0                       ;POINTS TO LAST CHANCE CARD USED
 CMPTR:  0                       ;AS ABOVE FOR COMM. CHEST CARDS
 CRDBLK:
         XLIST                   ;SETUP CHANCE/COMMUNITY CHEST POINTER BLOCKS
-;TODO: CODE LOST
+;TODO: CODE LOST++
+        Z = 0
+CMBLK:  REPEAT 20,<
+                XWD     0, COMMUN+Z
+                Z = Z+1>
+        Z = 0
+CHKBLK: REPEAT 20,<
+                XWD     0, CHANCE+Z
+                Z = Z+1>
+;TODO: CODE LOST--
         LIST                    ;REPEAT 20,<CMBLK,CHNBLK: XWD 0,COMMUN/CHANCE+Z>
 FLGCEI:                         ;FOR Z<-0(1)20
         PAGE
@@ -547,7 +556,7 @@ QSTFCH: OUTSTR  [ASCIZ\FINE OR CHANCE ?\]
         JRST    QSTFCH
 TAKE:   JSR     GETCHN                  ;GET CHANCE CARD
         OUTSTR  CRLF
-        JRST    @GETCH
+        JRST    @GETCM
 FINE10: MOVE    AC,CASH(PLAYER)         ;FINE PAID FOR USER
         SUBI    AC,12
         MOVEM   AC,CASH(PLAYER)
@@ -668,7 +677,7 @@ RNTCAL: 0
         JSR     SPLTST                  ;GET BOARD ADDRESSES OF SET MEMBERS FOR LATER
         TLNE    AC1,T.EWCO              ;ELECTRIC COMPANY/WATER WORKS?
         JRST    EWCO                    ;YES
-        MOV     ACZ,AC1                 ;SAVE FLAGS
+        MOVE    ACZ,AC1                 ;SAVE FLAGS
         MOVEI   AC,2(AC1)               ;GET FIRST RENT DATA ADDRESS
         SETZM   SETFLG#                 ;CLEAR SET FLAG
         TLNE    AC1,T.SET               ;PART OF A SET?
@@ -702,7 +711,7 @@ COMSTT: CAIN    AC,                     ;ARE THEY THE SAME AS THE ONE LANDED ON?
         JRST    COMSTT-1                ;NO, KEEP LOOKING
         MOVEI   AC1,^D25                ;YES, PUT MINIMUM RENT IN AC1
         SOS     SHCAL                   ;DECREMENT SHIFT VALUE
-SHCAL:  LSW     AC1,                    ;RENT=$25*2^(NO. STATIONS-1)
+SHCAL:  LSH     AC1,                    ;RENT=$25*2^(NO. STATIONS-1)
         JRST    @RNTCAL                 ;EXIT
 EWCO:   TLNN    AC1,T.SET               ;GOT THE SET?
         JRST    NOTSET                  ;NO, RENT=$4*(LAST THROW)
@@ -762,7 +771,7 @@ TLZJAL: TLZ     AC,P.JAIL+P.J1+P.J2     ;NOT IN JAIL
         PAGE
         SUBTTL  EXIT ROUTINE--CREATES CONTINUATION FILE
 EXITER: 0
-        JSR     INFILE
+        JSR     INFIL
         ENTER   1,FILE
         JRST    [OUTSTR [ASCIZ\CANNOT CREATE FILE '\]
                 OUTSTR  OUTFIL
@@ -774,7 +783,7 @@ EXITER: 0
         MOVE    N,FLGFLO(AC)
         JSR     WRTWRD
         AOBJN   AC,.-2
-        MOVE    N,THRFLG                ;WRITE THROW FLAG
+        MOVE    N,THWFLG                ;WRITE THROW FLAG
         JSR     WRTWRD
         MOVE    N,LSTTHW                ;WRITE LAST THROW
         JSR     WRTWRD
@@ -925,13 +934,13 @@ PRPBUY: MOVE    MOD,POSN+1
                 JRST    @BUYER]
         TLNN    AC1,T.OWND              ;ALREADY BEEN BOUGHT?
         JRST    NOTOWN                  ;NO
-        TLNE    AC1,T.OWNER             ;YES, PRINT OWNER MESSAGE
+        TLNE    AC1,T.OWNR              ;YES, PRINT OWNER MESSAGE
         JRST    .+3
         OUTSTR  [ASCIZ/I /]
         JRST    .+2
         OUTSTR  [ASCIZ/YOU ALREADY /]
         OUTSTR  [ASCIZ/OWN THIS PROPERTY
-\]
+/]
         JRST    @BUYER
 NOTOWN: HLRZ    AC2,0(AC1)              ;GET COST OF PROPERTY
         CAMLE   AC2,CASH+1              ;GREATER THAN USERS CASH?
@@ -965,7 +974,7 @@ NOTOWN: HLRZ    AC2,0(AC1)              ;GET COST OF PROPERTY
         JRST    @BUYER
 HSEBUY: SETZB   MOD,CNTRFG#
 BLOOP:  MOVE    AC1,BOARD(MOD)          ;GET FLAGS
-        SETCH   AC2,AC1
+        SETCM   AC2,AC1
         TLNE    AC2,T.OWNR+T.BABL+T.SET ;USER SET?
         JRST    BLPEND                  ;NO, TEST NEXT
         JSR     SPLTST                  ;GET OTHER SET MEMBERS BOARD ADDRESSES
@@ -1080,7 +1089,7 @@ SLLPND: AOS     MOD
         ;ROUTINE TO SPLIT SET ADDRESSES
 SPLTST: 0
         SETZ    SET3
-        HLRZ    SET2,A(AC1)             ;GET HALF-WORD CONTAINING MEMBER ADDRESSES
+        HLRZ    SET2,1(AC1)             ;GET HALF-WORD CONTAINING MEMBER ADDRESSES
         LSHC    SET2,-11                ;SPLIT IT INTO TWO
         LSH     SET3,-33
         JRST    @SPLTST
@@ -1169,7 +1178,7 @@ INHPRO: INCHWL  C
         JRST    ADDHSE
         MOVE    AC,SET3
         SKIPE   SET2
-        MOCE    AC,SET2
+        MOVE    AC,SET2
         CAIN    C,"2"
         JRST    ADDHSE
         JUMPN   SET2,TEST3
@@ -1219,7 +1228,7 @@ USINST: JSR     LSETST
         MOVE    AC1,POSN+1
         AND     AC1,AC                  ;GET NUMBER OF GOES IN JAIL
         CAMN    AC1,AC
-        JSR     HSTOUT                  ;IF THIS IS THREE THEN HE MUST GET OUT
+        JSR     MSTOUT                  ;IF THIS IS THREE THEN HE MUST GET OUT
         SKIPGE  CASH+1                  ;PRINT CASH WARNING IF NECESSARY
         OUTSTR  [ASCIZ/YOU ARE IN THE RED. /]
 ININST: OUTSTR  [ASCIZ/## /]           ;ASK FOR AN INSTRUCTION
@@ -1250,7 +1259,7 @@ NOTCR:  SUBI    C,40
         MOVE    MOD,CMDNUM              ;A COMMAND HAS NOW BEEN INPUT
 SRLOOP: HLLZ    AC1,CMDTBL(MOD)         ;SEARCH COMMAND LIST FOR THIS COMMAND
         CAMN    AC1,N                   ;FOUND IT?
-        JRST    [HRRZ   AC1,CMBTBL(MOD) ;YES, GET THE SUBROUTINE ADDRESS
+        JRST    [HRRZ   AC1,CMDTBL(MOD) ;YES, GET THE SUBROUTINE ADDRESS
                 JSR     0(AC1)          ;GO TO SUBROUTINE
                 JRST    USINST]         ;SUBROUTINE FINISHED THEREFORE GET NEXT COMMAND
         SOJGE   MOD,SRLOOP
@@ -1371,7 +1380,7 @@ STLOOP: MOVE    AC2,BOARD(MOD)          ;GET FLAGS
         TLNE    AC2,T.OWND
         JRST    PRTWHS
         OUTSTR  [ASCIZ/  -
-]                                       ;PRINT '-' UNDER OWNER IF PROPERTY NOT OWNED
+/]                                      ;PRINT '-' UNDER OWNER IF PROPERTY NOT OWNED
         JRST    STLPND
 PRTWHS: TLNN    AC2,T.OWNR              ;PRINT OWNER
         JRST    COMPS
@@ -1860,7 +1869,7 @@ OUTTOT: ADDB    N,X                     ;IF NOT DOUBLE PRINT SUM OF DICE
         ADDI    X,60
         OUTCHR  X
         ADDI    Z,60
-        OUTCHAR Z
+        OUTCHR  Z
 DICEND: HRRM    N,LSTTHW                ;REMEMBER LAST THROW FOR EWCO RENT
         HLLOS   THWFLG
         MOVE    AC,POSN(PLAYER)
@@ -1894,7 +1903,7 @@ TSTNOJ: HLRZ    N,POSN(PLAYER)
         OUTSTR  [ASCIZ\ IN JAIL.
 \]
         JRST    @THROW                  ;EXIT
-DBLTHW: MOVE    AC1,NOTHROW
+DBLTHW: MOVE    AC1,NOTHRW
         CAIE    AC1,3                   ;THREE DOUBLES ?
         JRST    [TLZ    AC,P.JAIL+P.J1+P.J2     ;SET JAILS FLGS TO 0
                 JRST    NORMGO]         ;DOUBLES GET U OUT-NORMAL GO
@@ -1902,7 +1911,7 @@ DBLTHW: MOVE    AC1,NOTHROW
         HLLZS   AC
         IOR     AC,[XWD P.JAIL,12]      ;PUT PLAYER IN JAIL
         MOVEM   AC,POSN(PLAYER)
-        SETZM   NOTHROW
+        SETZM   NOTHRW
 THROWX: OUTSTR  [ASCIZ\ AND \]
         JSR     NOWON                   ;PRINT SQUARE PLAYER IS NOW ON
         JSR     CHKSQ
@@ -1973,7 +1982,7 @@ CMPPRO: OUTSTR  [ASCIZ\THATS MY PROPERTY
         JSR     RNTCAL
         ADDM    AC1,CASH                ;USER TO PAY UP
         SUBM    AC1,CASH+1
-        MOVENS  CASH+1
+        MOVNS   CASH+1
         MOVE    N,AC1
         OUTSTR  [ASCIZ\RENT COLLECTED:- $\]
         JSR     INTOUT
