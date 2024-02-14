@@ -74,6 +74,7 @@ OPR>
                 17 lines processed
 
 OPR>EXIT
+.SET TTY WIDTH 132
 .
 ```
 
