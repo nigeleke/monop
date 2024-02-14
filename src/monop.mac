@@ -439,7 +439,7 @@ ASSCOM: SETZB   NHOUSE,NHOTEL
 NXTCNT: MOVE    AC,BOARD(COUNT)         ;GET INFO. ON SQ. NO- COUNT
 	TLNN    AC,T.SET                ;SET GOT?
 	JRST    AOCNT                   ;NO
-	HRLZ    AC1,AC
+	HLRZ    AC1,AC
 	ANDI    AC1,T.OWNR
 	IDIVI   AC1,T.OWNR
 	CAME    AC1,PLAYER
@@ -756,7 +756,7 @@ QSTFRE: INCHWL C                        ;YES, WISH TO USE IT?
 	JSR     CMPLIN
 	CAIN    C,"N"
 	JRST    @CRDUSE                 ;NO
-	CAIN    C,"Y"
+	CAIE    C,"Y"
 	JRST    [OUTSTR [ASCIZ\PLEASE ANSWER 'YES' OR 'NO' ..?\]
 		JRST    QSTFREE]
 	TLZN    AC,P.CMJ                ;YES, -HASN'T GOT IT ANY MORE

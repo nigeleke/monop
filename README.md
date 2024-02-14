@@ -6,7 +6,7 @@
 
   [Site](https://nigeleke.github.io/monop) \| [GitHub](https://github.com/nigeleke/monop)
 
-This is a nostalgic and dutifully typed in copy of a [Monopoly](https://en.wikipedia.org/wiki/Monopoly)-like program written in the summer of 1975 by myself and a school friend. It is written in [Macro-10](https://en.wikipedia.org/wiki/MACRO-10) and designed to run on a [PDP-10](https://en.wikipedia.org/wiki/PDP-10) if you happen to have one handy.
+This is a nostalgic and dutifully typed in copy [1, 2] of a [Monopoly](https://en.wikipedia.org/wiki/Monopoly)-like program written in the summer of 1975 by myself and a school friend. It is written in [Macro-10](https://en.wikipedia.org/wiki/MACRO-10) and designed to run on a [PDP-10](https://en.wikipedia.org/wiki/PDP-10) if you happen to have one handy.
 
 It's safe to say my friend and I were Monopoly fanatics, playing a dual board, figure of eight version of Monopoly every Saturday when we returned from our geek-out time at [Hatfield Polytechnic](https://en.wikipedia.org/wiki/University_of_Hertfordshire) (as it was then). We were privileged to have ample opportunity to use time on their DecSystem-10.
 
@@ -23,15 +23,11 @@ It's intended to reincarnate this on a [PiDP-10](https://hackaday.io/project/170
 
 Pre-requisite requires:
 
-  1. [simh v4+](https://github.com/open-simh/simh); `make pdp10`
-  2. [disk image](https://steubentech.com/~talon/pdp10/tops10-1.4.tar.bz2); Expand and copy `t10.dsk` to `./simh/disks/`
+  1. Text editor of choice.
+  2. [simh v4+](https://github.com/open-simh/simh); `make pdp10`
+  3. [disk image](https://steubentech.com/~talon/pdp10/tops10-1.4.tar.bz2); Expand and copy `t10.dsk` to `./simh/disks/`
 
-```
-> nix develop
-```
-
-All compilation is done on the simulator.
-
+All source code compilation is performed on the simulator.
 
 ## Run Simulator
 
@@ -49,10 +45,10 @@ BOOT>
 [Loading from DSKB:SYSTEM.EXE[1,4]]
 
 KS10 07-Oct-88
-Why reload: new
+Why reload: NEW
 Date: 
 Time: 
-Startup option: go
+Startup option: GO
 [Rebuilding the system search list from the HOM blocks]
 
 [Rebuilding the active swapping list from the HOM blocks]
@@ -77,33 +73,103 @@ OPR>
 14:08:51        -- End auto take file --
                 17 lines processed
 
-OPR>exit
+OPR>EXIT
 .
 ```
 
 ## Load & run source
 
+Copy the complete content of `monop.mac` source code to the clipboard.
+
 ```
-.r pip
+.R PIP
 *MONOP.MAC=TTY:
+<CTRL-SHIFT-V>
+	TITLE   MONOP - MONOPOLY PLAYING PROGRAM
+	SUBTTL  DEFINITIONS
+	PRINTX  MONOP-DEFINITIONS
+  ...
+```
+... and wait...
 
 ```
-
-At this point copy the whole content of `monop.mac`, go back to the `pip` terminal, do `CTRL-SHIFT-V` and wait.  At the end do a `CTRL-Z` to end the input.
-
-```
+  ...
+	PRINTX  MONOP-END OF PASS
+  END     MONOP
+<CTRL-Z>
 *<CTRL-C>
-.compile monop.mac /dlist
-.load monop
+.
+.COMPILE MONOP.MAC /DLIST
+.
+.LOAD MONOP
 LINK:   Loading
 
 EXIT
 
-.save
-MONOPO saved
-.run
+.SAVE
+MONOP saved
+.RUN
+
+
+MONOPOLY.
+=========
+
+WOULD YOU LIKE TO PLAY ?Y
+
+PLEASE TYPE IN YOUR CHRISTIAN NAME: NIGEL
+WOULD YOU LIKE SOME INSTRUCTIONS NIGEL ?Y
+
+THIS PROGRAM ENABLES YOU TO HAVE A GAME OF MONOPOLY AGAINST ME.
+TYPE ONE OF THE FOLLOWING INSTRUCTIONS EACH TIME `##` IS OUTPUT
+BUY:    TO BUY HOUSES OR PROPERTY.
+CASH:   TO FIND OUT HOW MUCH CASH YOU HAVE LEFT.
+EXIT:   TO CREATE A CONTINUATION FILE AND EXIT.
+GETOUT: TO GET OUT OF JAIL.
+HELP:   TO OBTAIN A BRIEF SUMMARY OF THESE INSTRUCTIONS.
+MORTGAGE:       TO MORTGAGE ANY OF YOUR PROPERTY.
+PROPERTY:       TO FIND OUT WHAT PROPERTY YOU'VE GOT.
+QUIT:   TO GIVE THE GAME TO ME.
+RENT:   TO COLLECT RENT FROM ME.
+        IN THE EVENT OF THROWING A DOUBLE I WILL GIVE YOU
+        ABOUT TWO SECONDS TO TYPE 'RENT' IF I LAND ON YOUR PROPERTY.
+SELL:   TO SELL HOUSES OR HOTELS (1 HOTEL=5 HOUSES)
+STATE:  TO GET A LIST OF THE COMPLETE STATE OF THE BOARD.
+THROW:  TO THROW THE DICE.
+UNMORTGAGE:TO UNMORTGAGE ANY OF YOUR PROPERTY.
+<CR>:   CARRIAGE RETURN WILL ALLOW ME TO HAVE MY GO.
+
+IN ALL THESE INSTRUCTIONS ONLY THE FIRST TWO CHARACTERS WILL
+BE RECOGNISED.
+
+I SHALL START THIS GAME.
+I'VE GOT $1500
+I'VE THROWN 10 AND I AM NOW ON JUST VISITING JAIL
+
+YOUR TURN. ## 
+
+... some while later...
+
+## THROW
+YOU'VE THROWN 7 AND YOU ARE NOW ON FLEET STREET
+THATS MY PROPERTY
+RENT COLLECTED:- $1050
+
+HARD LUCK NIGEL YOU HAVE JUST LOST.
+I KNEW ALL THE TIME I COULD BEAT YOU.
+I HOPE YOU ENJOYED THE GAME AND WILL PLAY WITH ME AGAIN SOMETIME ...
+BE SEEING YOU
+BYE BYE NIGEL
+
+EXIT
+
+.
 ```
 
 ## Acknowledgements
 
-  * [PiDP-10 Google Groups](https://groups.google.com/g/pidp-10) for their support in getting the operating system up and running via simh, in particular [Clem Cole](https://groups.io/g/simh/topic/91528716) for guiding me through putting the source code on to a "mag-tape" so I could load it into the PDP-10.
+  * [PiDP-10 Google Groups](https://groups.google.com/g/pidp-10) for their support in getting the operating system up and running via simh, in particular [Clem Cole](https://groups.io/g/simh/topic/91528716). Note that much of the commentary around getting my source code loaded onto the PDP-10 suggested that mag-tape would be easiest, however I did not find a compatible combination of simulator, disk image or mag-tape format that worked. In the end I went the TTY: path. It is laborious (read slow) when loading changes, but it works.
+
+## Notes
+
+  1. The `.TITLE` was changed to `MONOP - ...` from the original `...` simply to make the `SAVE` command above save `MONOP.EXE` by default, rather than `MONOPO.EXE`.
+  2. `<BEL>` characters were removed from outputted text as they were annoying - more so than in 1975!
